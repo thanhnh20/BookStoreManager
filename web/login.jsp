@@ -53,7 +53,7 @@
                     </c:if><br/>
                 </div>
                 <div class="form-check">
-                    <input type="checkbox" class="form-check-input" id="flexCheckDefault">
+                    <input type="checkbox" class="form-check-input" id="flexCheckDefault" name="checkRemember" value="">
                     <label for="flexCheckDefault">Remember Me</label>
                 </div>
                 <button class="btn btn-outline-danger w-50" type="submit">

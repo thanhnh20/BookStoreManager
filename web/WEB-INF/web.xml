@@ -24,9 +24,17 @@
         <servlet-name>LoginServlet</servlet-name>
         <servlet-class>fu.controllers.LoginServlet</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>StartUpServlet</servlet-name>
+        <servlet-class>fu.controllers.StartUpServlet</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>LoginServlet</servlet-name>
         <url-pattern>/LoginServlet</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>StartUpServlet</servlet-name>
+        <url-pattern>/StartUpServlet</url-pattern>
     </servlet-mapping>
     <session-config>
         <session-timeout>

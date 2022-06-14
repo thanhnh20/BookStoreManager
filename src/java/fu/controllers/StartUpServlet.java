@@ -7,14 +7,12 @@ package fu.controllers;
 
 import fu.tblaccount.TblAccountDAO;
 import fu.tblaccount.TblAccountDTO;
-import fu.tblaccount.TblAccountError;
 import fu.ultis.MyApplicationConstains;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.SQLException;
 import java.util.Properties;
 import javax.naming.NamingException;
-import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;
@@ -27,7 +25,7 @@ import javax.servlet.http.HttpSession;
  *
  * @author ASUS
  */
-public class LoginServlet extends HttpServlet {
+public class StartUpServlet extends HttpServlet {
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -41,69 +39,43 @@ public class LoginServlet extends HttpServlet {
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
-
-        //get parameter        
-        String username = request.getParameter("txtUsername");
-        String password = request.getParameter("txtPassword");
-        String checkRemember = request.getParameter("checkRemember");
-
+        
+        // get site map property
         ServletContext context = this.getServletContext();
-        Properties prop = (Properties) context.getAttribute("SITE_MAPS");
-        String url = prop.getProperty(MyApplicationConstains.LoginServletFeature.LOGIN_PAGE);
-
-        try {
-            TblAccountError error = new TblAccountError();
-            boolean foundError = false;
-            // check username is not empty
-            if (username.trim().length() == 0) {
-                error.setUsernameEmpty("Please enter username");
-                foundError = true;
-            }
-            //check password is not empty
-            if (password.trim().length() == 0) {
-                error.setPasswordEmpty("Please enter password");
-                foundError = true;
-            }
-            //set error if found
-            if (foundError) {
-                request.setAttribute("ERROR", error);
-                RequestDispatcher rd = request.getRequestDispatcher(url);
-                rd.forward(request, response);
-            } else {
+        Properties prop = (Properties)context.getAttribute("SITE_MAPS");
+        
+        String url = MyApplicationConstains.StartUpFeature.LOGIN_PAGE;
+        try{
+            //get cookies
+            Cookie[] listCookie = request.getCookies();
+            if(listCookie != null){
+                Cookie cookie = listCookie[listCookie.length - 1];
+                String username = cookie.getName();
+                String password = cookie.getValue();
+                //check login with name and value of cookie
                 TblAccountDAO accountDAO = new TblAccountDAO();
                 boolean result = accountDAO.checkLogin(username, password);
-                if (result) {
-                    TblAccountDTO accountDTO = accountDAO.getAccount(username);
-                    // add cookie                 
-                    if (checkRemember != null) {
-                        Cookie cookie = new Cookie(username, password);
-                        cookie.setMaxAge(60 * 1);
-                        response.addCookie(cookie);
-                    }
+                
+                if(result){
+                    TblAccountDTO accountDTO = accountDAO.getAccount(username); 
                     //check role
                     if (accountDTO.isRole()) {
                         HttpSession session = request.getSession();
                         session.setAttribute("ADMIN_ROLE", accountDTO);
                         url = MyApplicationConstains.LoginServletFeature.ADMIN_PAGE;
-                        response.sendRedirect(url);
                     } else {
                         HttpSession session = request.getSession();
                         session.setAttribute("USER_ROLE", accountDTO);
                         url = MyApplicationConstains.LoginServletFeature.USER_PAGE;
-                        response.sendRedirect(url);
                     }
-                } else {
-                    //set error account
-                    error.setWrongAccount("Your username or password invalid");
-                    request.setAttribute("ERROR", error);
-                    RequestDispatcher rd = request.getRequestDispatcher(url);
-                    rd.forward(request, response);
                 }
             }
-        } catch (NamingException ex) {
-            log("LoginController_NamingException " + ex.getMessage());
-        } catch (SQLException ex) {
-            log("LoginController_SQLException " + ex.getMessage());
+        }catch(NamingException ex){
+            log("NamingException at StartUpServlet " + ex.getMessage());
+        }catch(SQLException ex){
+            log("SQLException at StartUpServlet " + ex.getMessage());
+        }finally{
+            response.sendRedirect(url);
         }
     }
 

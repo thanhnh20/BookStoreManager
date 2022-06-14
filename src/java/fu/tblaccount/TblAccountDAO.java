@@ -18,7 +18,9 @@ import javax.naming.NamingException;
  * @author ASUS
  */
 public class TblAccountDAO implements Serializable {
-
+    
+    
+    //check login account with username and password
     public boolean checkLogin(String username, String password) throws SQLException, NamingException {
         Connection con = null;
         PreparedStatement stm = null;
@@ -50,7 +52,9 @@ public class TblAccountDAO implements Serializable {
         }
         return false;
     }
-
+    
+    
+    //get account by username
     public TblAccountDTO getAccount(String username) throws NamingException, SQLException {
         Connection con = null;
         PreparedStatement stm = null;
